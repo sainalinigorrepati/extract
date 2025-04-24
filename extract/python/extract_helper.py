@@ -160,3 +160,14 @@ def logs():
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
     return logger
+
+def post_api(url, payload):
+     headers = {
+            'Content-Type': 'application/json',
+        }
+     try:
+         response = requests.post(url, headers=headers, json=payload)
+         return response.json()
+     except Exception as e:
+         logging.error(f"Unable to trigger scrub: {e}")
+
