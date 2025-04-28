@@ -1,4 +1,4 @@
-import json, requests, yaml, uuid, os, sys, logging, boto3
+import json, requests, yaml, uuid, os, sys, logging, boto3, re
 from datetime import datetime
 
 def create_tables(spark, unique_id, base_loc, request_id, database_name, log_file):
@@ -60,6 +60,62 @@ def load_source_data_to_tables(base_loc, request_id, database_name, spark, uniqu
     except Exception as e:
             logging.error(f"Error in creating table: {str(e)}")
             raise
+
+def generate_random_value(data_type, column_length):
+    data_type_lower = data_type.lower()
+    if column_length:
+        if column_length < 3 and data_type_lower in ["varchar", "varchar2", "string", "blob", "clob"]:
+            return '"a"'
+        elif column_length < 3 and data_type_lower in ["number", "int", "double", "float"]:
+            return '"4"'
+        elif data_type_lower in ["char"]:
+            return '"a"'
+        elif data_type_lower in ["number", "int", "double", "float"]:
+            return 10
+        elif data_type_lower == 'date':
+            return '"2003-05-03T21:02:44.000-07:00"'
+        else:
+            return '"abc"'
+    elif column_length is None:
+        if data_type_lower in ["varchar", "varchar2", "string", "blob", "clob"]:
+            return '"abc"'
+        elif data_type_lower in ["char"]:
+            return '"a"'
+        elif data_type_lower in ["number", "int", "double", "float"]:
+            return 10
+        elif data_type_lower == 'date':
+            return '"2003-05-03T21:02:44.000-07:00"'
+        else:
+            return '"abc"'
+    else:
+        return '"a"'
+def regex_name(data_attribute):
+    sde_field_name = "null"
+    if re.search("title", data_attribute) or re.search("suf", data_attribute) or re.search("title", data_attribute) or re.search("pfx", data_attribute) or re.search("pfx", data_attribute) or re.search("sffx", data_attribute):
+        sde_field_name = "null"
+    elif re.search("emplr", data_attribute):
+        sde_field_name = "emplr_nm"
+    elif re.search("first", data_attribute) or re.search("frst", data_attribute) or re.search("1st", data_attribute) or re.search("fname", data_attribute) or re.search("fst", data_attribute) or re.search("FIRST_NAME", data_attribute) or re.search("NAME_FIRST", data_attribute):
+        sde_field_name = "sde.first_nm"
+    elif re.search("mid", data_attribute) or re.search("Name_MID", data_attribute):
+        sde_field_name = "sde.mid_nm"
+    elif re.search("last", data_attribute) or re.search("lst", data_attribute) or re.search("lname", data_attribute) or re.search("NAME_LAST", data_attribute):
+        sde_field_name = "sde.lst_nm"
+    else:
+        sde_field_name = "sde.first_nm||' '||sde.mid_nm||' '||sde.lst_nm"
+    return sde_field_name
+
+def regex_dob(data_attribute):
+    """Returns the SDE column name for SDE field date of birth"""
+    if re.search("nm", data_attribute) or re.search("mo", data_attribute):
+        sde_field_name = "MM" + ":" + "cm_dob"
+    elif re.search("yy", data_attribute) or re.search("yr", data_attribute) or re.search("year", data_attribute):
+        sde_field_name = "YY" + ":" + "cm_dob"
+    elif re.search("DD", data_attribute):
+        sde_field_name = "DD" + ":" + "cm_dob"
+    else:
+        sde_field_name = "cm_dob"
+    return sde_field_name
 
 def generate_select_query(spark, table_data, output_dir,unique_id,input_db):
         # Configure logging
