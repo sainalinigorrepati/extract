@@ -2,7 +2,7 @@
     "id": "servicerequest:14329573:ORACLE:21271301323121" ,
     "service_id": "servicerequest:14329573:0RACLE:21271301323121",
     "request_id": "TES20241101000"
-    "template_id": "14329573:ORACLE:ALL:ABC_PSHDBE:ST_NC:e2",
+    "template_id": "14329573:ORACLE:ALL:INC_PSHDBE:ST_NC:e2",
     "service_request_name":"test",
     "service_request_type": "EXTRACT",
     "car_id": "14329573",
@@ -11,18 +11,18 @@
     "service_name": null,
     "db_type": "ORACLE",
     "select_all": null,
-    "driver_column_keys_loaded": "NO" ,
+    "driver_column_keys_loaded": "YES" ,
     "status": "MASKING_IN_PROGRESS",
     "env": "e2"
-    "driver_table": null,
-    "driver_column": null,
+    "driver_table": "EOT_CUST",
+    "driver_column": "CREDITCARD_NUMBER",
     "updated_timestamp": "2024-11-01T12:52:14.915",
     "created_by": "john"
     "executed_by": "john"
     "approved_by": "john"
     "extract_start_date": null,
     "data_load_initiated": false,
-    "keys_needed": false,
-    "eot_encryption_applied": null,
+    "keys_needed": true,
+    "eot_encryption_applied": "YES",
     "type": "servicerequest"
 }
