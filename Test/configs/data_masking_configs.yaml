@@ -1,0 +1,19 @@
+database:
+  input_db: sde_in_db
+  sde_database: sde_db
+  output_db: sde_op_db
+paths:
+  base_data_loc: /abc/data/
+  exec_loc: /abc/tt/data_masking/
+  base_loc: /abc/tt/data_masking/scrubbing/ scrub_config_path: /abc/tt/data_masking/scrubbing/configs/ json_config_path: /abc/tt/data_masking/scrubbing/configs/ query_op_path: /abc/tt/data_masking/configs/ masked_data_base_path: / abc/data/masked_data/
+  1og_dir_base: /abc/tt/data_masking/1ogs/T
+url:
+  status_update_url: https://onboardingapi-dev.xyz.com/service-request/update-status
+  port: 443
+  md_url: https://ettonboardingapi-dev.xyz.com/service-request/
+tables:
+  sde_cm15_table: sde_pii_ cm15
+S3_configs:
+  s3_endpoint_url: https:/ /s3-app-qa.xyz.com: 443
+  access_key_id: 5d678b1c4d95649547668
+  access_secret_key: "n
