@@ -2,7 +2,6 @@ import json, requests, yaml, uuid, os, sys, logging, boto3, re
 from datetime import datetime
 
 def create_tables(spark, unique_id, base_loc, request_id, database_name, log_file):
-    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(Levelname)s - %(message)s') # Initialize 109ging
     base_path = os.path.join(base_loc, request_id)
     for table_name in os. listdir(base_path):
         table_path = os.path.join(base_path, table_name)
@@ -122,6 +121,7 @@ def generate_select_query(spark, table_data, output_dir,unique_id,input_db):
         log_filename = 'query-generator.log'
         logging.basicConfig(filename=os.path.join(output_dir, log_filename), level=logging.INFO)
         logger = logging.getLogger(__name__)
+
         table_name = table_data["table_name"].Lower()
         driver_column_sde_rule = table_data["driver_column_sde_rule"]
         # Define driver table and columns
@@ -231,6 +231,10 @@ def generate_create_table_statement(table_name, columns, database_nm, unique_id)
         column_name = column['column_name'].lower()
         data_type = map_data_type(column['data_type'])
         column_definations.append(f"{column_name} {data_type}")
+    columns_str = ",\n ".join(column_definations)
+    create_table_stmt = f"CREATE TABLE IF NOT EXISTS {database_nm}.{table_name}_{unique_id} (\n {columns_str}\n) row format delimited fields terminated by ',' sorted as textfile;"
+    print(create_table_stmt)
+    return create_table_stmt
 
 def trigger_create_source_table(json_file, spark, database_nm, unique_id):
     with open(json_file, 'r') as file:
