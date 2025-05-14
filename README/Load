@@ -1,0 +1,80 @@
+LOAD Trigger
+Trigger the shell script that is in E1 from local
+Code is triggered table by table
+1. ssh bfa@xyz.zx.wd.com
+2. password
+   i.cd /bfa/tt_load/load/scripts
+    /bin/sh end_to_end_load.sh table_name(STDENTS) templateld(8734573594:TAN-LOYAL-
+    INTL:ORACLE:UK:BFX_PQSTIGB01P:LSP:E1) dbinfoid(dbinfo:8734573594:TAN-LOYAL-INT) env(e1)
+    servicerequest (servicerequest:8734573594:TAN-LOYAL-INTL:oracle:20240619231839) restore_cm(True/False)
+    load (full_refresh/load_append/upsert) source_template_id(8734573594:TAN-LOYAL-
+    INT:ORACLE:UK:BFX_PUTINF01P:MNF:E1)
+    (or)
+   ii. /bin/sh /bfa/tt_load/load/scripts/end_to_end_load.sh table_name(STDENTS) templateld(8734573594:TAN-LOYAL-
+    INT:ORACLE:UK:BFX_PUTINF01P:MNF:E1) dbinfoid(dbinfo:8734573594:TAN-LOYAL-INT) env(e1) servicerequest()
+    restore_cm (True/False) load(full_refresh/load _append/upsert) ource_template_id(8734573594:TAN-LOYAL-
+    INTL:ORACLE:UK:BFX_PUTINF01P:LSP:E1) \
+
+-- get SERVICEREQUEST from NAS /bfa/data/
+example path in NAS /bfa/data/SERVICEREQUEST_8734573594_TAN-LOYAL-INT_ORACLE_20240702145054
+replace _ with : and change SERVICEREQUEST and ORACLE to lower case
+
+Load Trigger API
+Code is trigerred for all the tables one by one present in the service request
+URL - https://ettapi-dev.bfa.com/spark/trigger-spark-data-load
+Method - post
+{
+"service_id": "servicerequest",
+"template_template_id": " ",
+"d_info_id": " ",
+"target_env": "E1/E2",
+"cm_check": true/false,
+"load_type": " "
+"source_template_id" : " " }
+
+Example {
+"service_id": "servicerequest:8734573594:TAN-LOYAL-INT:oracle:20240702145054", \ "template_id": 8734573594":TAN-LOYAL-INT:ORACLE:GB:BFX_PQtt01P:Stt3_TFC:E1",
+"db_info_id": "dbinfo:8734573594:TAN-LOYAL-INTL",
+"target_env": "E1",
+"cm_check": false,
+"load_type": "full_refresh"
+"source_template_id": "8734573594:TAN-LOYAL-INTL:ORACLE:UK:BFX_PUTINF01P:MNF:E1" }
+
+Logs
+
+Logs for the table are at
+/bfa/tt_load/load/logs/{SERVICEREQUESTYKTABLE_NAME}
+
+API to see tables in the servicerequest
+
+URL - https://ettapi-dev.bfa.com/service-request/(servicerequest)
+Method - get
+replace {servicerequest) with the servicerequest you want to check the tables for example
+https://ettapi-dev.bfa.com/service-request/servicerequest:8734573594:TAN-LOYAL-INT:oracle:20240702145054
+
+LOAD Process
+1. Take user input for config file, table name, template id, dbinfoid, env, cm_check (true or false), upsert_load (true or false), validating the arguments.
+2. Load config file.
+3. Fetch metadata from api.
+4. Job name is taken from service id in metadata.
+5. Spark session is initialized.
+6. Fetch db details for loading from config file.
+7. Get schema details from metadata.
+8. Crete schema StructField and StructType.
+9. Give file path for nas files.
+10. Check if the path exists- if path doesn't exist send status Failed
+11. Read data from NAS to a data frame.
+12. If user chooses cm check
+    i. True —The api is called, the test cm values are posted and prod cm values are fetched and replaced using join. (code is dynamic for cm11, 13, 15), api url in given in the yaml file.
+    ii. False - skips replacing test cms with prod cms, test cms are written to oracle.
+13. If user chooses upsert load
+    i. True - inserts and updates data
+        a. Data is read from oracle.
+        b. Do union of data from nas and oracle.
+        c. Drop duplicated based on primary key.
+        d. Data is written to nas.
+        e. Data is read from nas into a dataframe.
+    ii. False - skips to the next step
+14. Load metadata from Oracle.
+15. Metadata is validated.
+16. Data is written to Oracle.
