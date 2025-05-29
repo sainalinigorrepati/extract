@@ -1,0 +1,35 @@
+request_f1
+├── caseId                          (NOT PII)
+├── status                          (NOT PII)
+├── journey                         (NOT PII)
+├── entities
+│   ├── name                        (PII - <secondary_pii_indv_name: full_name_other>)
+│   ├── status                      (NOT PII)
+│   ├── expression                  (NOT PII)
+│   ├── reasonCode                  (NOT PII)
+│   ├── communication
+│   │   ├── account
+│   │   │   ├── identifierType     (NOT PII)
+│   │   │   ├── identifierValue    (NOT PII)
+│   │   └── businessUnitTypeCode   (NOT PII)
+│   ├── identifierType             (NOT PII)
+│   ├── identifierValue            (NOT PII)
+│   ├── requestedDocuments
+│   │   ├── type                   (NOT PII)
+│   │   ├── status                 (NOT PII)
+│   │   ├── duration
+│   │   │   ├── unit              (NOT PII)
+│   │   │   ├── value             (NOT PII)
+│   │   ├── isRequired             (NOT PII)
+│   │   ├── submission             (NOT PII)
+│   │   ├── isSpreadable          (NOT PII)
+│   │   └── associatedReasonCode   (NOT PII)
+├── createdTimestamp               (NOT PII)
+├── requestedTimestamp             (NOT PII)
+├── journeyTrackingNumber          (NOT PII)
+├── serviceLevelAgreement
+│   ├── duration
+│   │   ├── unit                  (NOT PII)
+│   │   ├── value                 (NOT PII)
+│   ├── expiryTS                   (NOT PII)
+│   └── type                       (NOT PII)
