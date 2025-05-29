@@ -3,6 +3,8 @@ import os, sys, yaml, requests, logging
 from pyspark.sql import SparkSession
 from pyspark.context import SparkConf
 
+from extract.python.hiped_helper import add_enc_prefix
+from extract.python.test import drop_columns
 from hiped_helper import decryptNG, encrypt_with_DB_keys
 
 def create_spark_session(job_name, warehouse_dir=None, enable_hive_support=False):
@@ -24,6 +26,29 @@ def create_spark_session(job_name, warehouse_dir=None, enable_hive_support=False
 
     return spark
 
+def encrypt_with_DB_keys(extract_config, df, metadata, spark, envr, hiped_jar):
+    for column in metadata['column_list']:
+        if column['column_name'] == metadata['driver_column']:
+            enc_col = list([column['column_name'], column['hipedAlgorithm'], column['encryption_sde_key'], column['hipedEmbededPANHeaderVersion'], column['encryption_sde_useIVMethos']])
+            if column['hipedAlgorithm'] == 'HipedEmbeded':
+                spark.sql(f"CREATE TEMPORARY FUNCTION hiped_embed_encrypt as 'com.abc.de.bulkcrypto.udf.Encrypto.udf' USING jar '{hiped_jar}'")
+                df.createOrReplaceTempView("hive_view")
+                column_order = df.columns
+                enc_list = [add_enc_prefix(extract_config, enc_col[0], envr, logger, enc_col[3], enc_col[4], enc_col[1], enc_col[2])]
+                column_list = [enc_col[0]]
+            elif column['hipedAlgorithm'] == 'keybasedcryptohash':
+                continue
+            else:
+                print("provide correct hipedalgorithm")
+        else:
+            continue
+        list_str = ",".join(enc_list)
+        hiped_df = spark.sql(f"select *, {list_str} from hive_view")
+        hiped_df = drop_columns(hiped_df, column_list, logger, "_enc")
+        df = hiped_df.select(*column_order)
+        spark.sql("DROP TEMPORARY FUNCTION IF EXISTS hiped_embed_encrypt")
+
+    return df
 
 def decrypt_driver_keys(extract_config, keys, key_cols, spark, envr, logger, hiped_jar, metadata, enc_col, column_list):
     try:

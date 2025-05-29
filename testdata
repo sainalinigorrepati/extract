@@ -1,0 +1,12 @@
+[
+    {
+        "NET_XF": "123456     ",
+        "ABC_XY": "abcd",
+        "XY_Z": "CDEF"
+    },
+    {
+        "NET_XF": "123456       ",
+        "ABC_XY": "abcd",
+        "XY_Z": "CDE"
+    }
+]

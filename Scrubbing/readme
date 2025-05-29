@@ -1,0 +1,9 @@
+1) fetches metadata json into "json_data_wl"
+2) convert into list and store into "json_data"
+3) fetch table_name= MEMBER_ALL, app_car_id=125883611 from the metadata json
+4) fetch service_request_id = servicerequest:125883611:ORACLE:20250509094231
+5) fetch table_request_id =  servicerequest:125883611:ORACLE:20250509094231:MBR_MEMBER_ALL from json to send the status of that rquest
+6) create service_md_json_path with outdir + service_request_id.replace(':','_')
+7) create a directory with service_md_json_path
+8) create a json file in directory service_md_json = service_md_json_path + '/' + service_request_id.replace(':', '_') + ".json"
+9)service_md_url = https://etdmonboarding-qa.aexp.com/service-request/servicerequest:125883611:ORACLE:20250509094231

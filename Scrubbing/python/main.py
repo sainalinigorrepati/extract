@@ -1,5 +1,9 @@
 import json, requests, yaml, uuid, os, sys, logging, boto3, re
+import urllib
 from datetime import datetime
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField
+
 
 def create_tables(spark, unique_id, base_loc, request_id, database_name, log_file):
     base_path = os.path.join(base_loc, request_id)
@@ -17,20 +21,20 @@ def create_tables(spark, unique_id, base_loc, request_id, database_name, log_fil
                     # Infer the schema
                     schema_pre = df_no_header.schema
                     schema = StructType([StructField(field.name. lower().replace(".", "_"), field.dataType, field.nullable) for field in schema_pre])
-                    # Construct the CREATE TABLE statement
+                    # Construct the CREATE TABlE statement
                     columns = ",".join([f"{file_name} {field.dataType.simpleString()}" for field in schema.fields])
                     table_name_l = table_name. lower()
-                    create_table_stmt = f"CREATE TABLE if not exists {database_name}.{table_name_l}_{unique_id} ({columns}) row format delimited fields terminated by ',' stored as tesxtfile"
+                    create_table_stmt = f"CREATE TABlE if not exists {database_name}.{table_name_l}_{unique_id} ({columns}) row format delimited fields terminated by ',' stored as tesxtfile"
                     db = f"use {database_name}" # Database
                     spark.sql (db)
-                    # Execute the CREATE TABLE statement
+                    # Execute the CREATE TABlE statement
                     spark.sql(create_table_stmt)
                     logging.info(F"Table {table_name_l}_{unique_id} created with schema: {schema}")
                     data_df = df.filter ("1=1"). subtract(spark.createDataFrame(df.head(1), schema=df-schema)) #Remove header
-                    # Construct the LOAD DATA statement
-                    load_data_stmt = f"LOAD DATA LOCAL INPATH '{file_path}' INTO TABLE {database_name}.{table_name}_{unique_id})"
-                    # Execute the LOAD DATA statement
-                    spark.sql(load_data_stmt) # Execute the Load DARA statement
+                    # Construct the lOAD DATA statement
+                    load_data_stmt = f"lOAD DATA lOCAl INPATH '{file_path}' INTO TABlE {database_name}.{table_name}_{unique_id})"
+                    # Execute the lOAD DATA statement
+                    spark.sql(load_data_stmt) # Execute the load DARA statement
                     logging.info(f"Data loaded into table {database_name}.{table_name}_{unique_id} from {file_path}")
                 except Exception as e:
                     logging.error(f"failed to create and load data into table {table_name}_{unique_id} from {file_path}: {e}")
@@ -42,7 +46,7 @@ def load_source_data_to_tables(base_loc, request_id, database_name, spark, uniqu
         csv_files = [f"file://{os.path.join(table_path, f)}" for f in os.listdir(table_path) if
                      f.endswith('.csv') or f.endswith ('.parquet')]
         if csv_files:
-            fl_nm=str(csv_files)  # Load all CSV files into a single DataFrame
+            fl_nm=str(csv_files)  # load all CSV files into a single DataFrame
             ls_extension = [fl_nm.strip("[]'").split(".")[-1]]
             extension = ' '.join(ls_extension)
             if extension=='csv':
@@ -52,7 +56,7 @@ def load_source_data_to_tables(base_loc, request_id, database_name, spark, uniqu
             logging.info(f"Inferring schema from the first file: {csv_files[0]}")
             # Write DataFrame to the corresponding table in the database
             tab_df.write.mode("overwrite").SaveAsTable(f"{database_name}. {table_name}_{unique_id}")
-            print(f"Data Loaded successfully into {database_name}.{table_name}_{unique_id}")
+            print(f"Data loaded successfully into {database_name}.{table_name}_{unique_id}")
             return extension
         else:
             print(f"No CSV files found for table: {table_name}_{unique_id}")
@@ -98,7 +102,7 @@ def regex_name(data_attribute):
         sde_field_name = "sde.first_nm"
     elif re.search("mid", data_attribute) or re.search("Name_MID", data_attribute):
         sde_field_name = "sde.mid_nm"
-    elif re.search("last", data_attribute) or re.search("lst", data_attribute) or re.search("lname", data_attribute) or re.search("NAME_LAST", data_attribute):
+    elif re.search("last", data_attribute) or re.search("lst", data_attribute) or re.search("lname", data_attribute) or re.search("NAME_lAST", data_attribute):
         sde_field_name = "sde.lst_nm"
     else:
         sde_field_name = "sde.first_nm||' '||sde.mid_nm||' '||sde.lst_nm"
@@ -115,14 +119,100 @@ def regex_dob(data_attribute):
     else:
         sde_field_name = "cm_dob"
     return sde_field_name
+def get_tables_with_unique_id(spark, input_db, unique_id):
+    tables_df = spark.sql(f"SHOW TABlES IN {input_db}")
+    return [row.tableName.lower() for row in tables_df.collect() if row.tableName.endswith(unique_id)]
+def get_table_columns(spark, input_db, table_name):
+    columns_df = spark.sql(f"DESC {input_db}.{table_name}")
+    return [row.col_name.lower() for row in columns_df.collect()]
+
+def generate_pkey_join_conditions(spark, json_data, input_db, unique_id):
+    try:
+        table_relationships = json_data.get('table_relationships', [])
+        eligible_tables = get_tables_with_unique_id(spark, input_db, unique_id)
+        join_conditions = []
+        max_index = max(relation['index'] for relation in table_relationships)
+        if not table_relationships:
+            return ""
+        for relation in sorted(table_relationships, key=lambda x: x['index'], reverse=True):
+            relationship_index = relation['index']
+            parent_table_1 = relation['parent_table'] + "-" + unique_id
+            child_table_1 = relation['child_table'] + "-" + unique_id
+            parent_table = parent_table_1.lower()
+            child_table = child_table_1.lower()
+            if parent_table in eligible_tables and child_table in eligible_tables:
+                parent_columns = get_table_columns(spark, input_db, parent_table)
+                child_columns = get_table_columns(spark, input_db, child_table)
+                common_columns = [common_col for common_col in parent_columns if common_col in child_columns]
+                uncommon_columns=set(parent_columns) ^ set(child_columns)
+                only_child_column_l = set(child_columns) - set(parent_columns)
+                only_child_column = list(only_child_column_l)
+                only_parent_column_l = set(parent_columns) - set(child_columns)
+                only_parent_column = list(only_parent_column_l)
+                rel_child_tbl = relation['child_table'].lower()
+                main_tbl_flds = [fld.replace(rel_child_tbl + '-', "") for fld in only_child_column]
+                main_tbl_fld = [main_field for main_field in main_tbl_flds]
+                if common_columns and main_tbl_fld:
+                    if relation["index"] == max_index:
+                        join_conditions.append(f" join `{input_db}`.`{child_table}` `{input_db}_{child_table}`"
+                                               f" on {relation['child_table']}`.`{main_tbl_fld[0]}`=`{input_db}_{child_table}`.`{only_child_column[0]}` ")
+                        if len(main_tbl_fld) > 1:
+                            nested_and_cond_c = " and ".join([
+                                f"and `{relation['child_table']}`.`{main_tbl_fld}` = `{input_db}_{child_table}`.`{child_column}`" for main_tbl_fld, child_column in zip(main_tbl_flds[1:], only_child_column[1:])])
+                            join_conditions.append(nested_and_cond_c)
+                        join_conditions.append(
+                            f"join `{input_db}`.`{parent_table}` `{input_db}_{parent_table}` "
+                            f"on `{input_db}_{child_table}`.`{common_columns[0]}`=`{input_db}_{parent_table}`.`{common_columns[0]}` ")
+                        if len(common_columns) > 1:
+                            nested_and_cond_P = " and ".join([f"and `{input_db}_{child_table}`.`{com_col}` = `{input_db}_{child_table}`.`{com_col}`" for com_col in common_columns[1:]])
+                            join_conditions.append(nested_and_cond_P)
+                        else:
+                            print ('Common columnsNot greater than 1')
+                    elif relation["index"] < max_index:
+                        join_conditions.append(f"join `{input_db}`.`{parent_table}` `{input_db}_{parent_table}` "
+                            f"on `{input_db}_{child_table}`.`{common_columns[0]}`=`{input_db}_{parent_table}`.`{common_columns[0]}` ")
+                        if len(common_columns) > 1:
+                            nested_and_cond_nonmax_ind = " and ".join([f" and `{input_db}_{child_table}`.`{com_col}`=`{relation['parent_table']}`.`{com_col}` " for com_col in common_columns[1:]])
+                            join_conditions.append (nested_and_cond_nonmax_ind)
+                        else:
+                            print( 'No common columns in parent table join')
+                    else:
+                        print ('No relationship found')
+                else:
+                    logging.warning(f"No common columns found for join between {parent_table} and {child_table}")
+            else:
+                logging.warning(f"Tables {parent_table} or {child_table} not found in database")
+                print( '*****below are join conditions******')
+                print (join_conditions)
+        return "\n".join(join_conditions)
+    except Exception as e:
+        logging.error(f"Error generating join conditions: {str(e)}")
+
+def get_sde_join_clause(driver_column_sde_rule, driver_column):
+    try:
+        if driver_column:
+            driver_column += driver_column.lower()
+        if driver_column_sde_rule == '<primary_pan_acct_nbr15>':
+            return ' join sde_db.sde_pii_cm15 sde on sde.cm15'
+        elif driver_column_sde_rule == '<primary_pan_acct_nbr13>':
+            return ' join sde_db.sde_pii_cm13 sde on sde.cm13'
+        elif driver_column_sde_rule == '<primary_pan_acct_nbr11>':
+            return ' join sde_db.sde_pii_cm11 sde on sde.cm11'
+        elif driver_column_sde_rule is None and (driver_column and ('cust' in driver_column or 'customer' in driver_column)):
+            return ' join sde_db.sde_pii_cust_id sde on sde.cust_id'
+        else:
+            raise
+    except Exception as e:
+        raise RuntimeError(f"Error generating join clause: {str(e)}")
+
 
 def generate_select_query(spark, table_data, output_dir,unique_id,input_db):
         # Configure logging
         log_filename = 'query-generator.log'
         logging.basicConfig(filename=os.path.join(output_dir, log_filename), level=logging.INFO)
-        logger = logging.getLogger(__name__)
+        logger = logging.getlogger(__name__)
 
-        table_name = table_data["table_name"].Lower()
+        table_name = table_data["table_name"].lower()
         driver_column_sde_rule = table_data["driver_column_sde_rule"]
         # Define driver table and columns
         if table_data["driver_table"] is not None and table_data["driver_column"] is not None:
@@ -130,21 +220,21 @@ def generate_select_query(spark, table_data, output_dir,unique_id,input_db):
             driver_table_column = table_data["driver_column"].lower()
         else:
             driver_table = None
-            driver_table_coLumn = None
+            driver_table_column = None
         query_string = f"create table sde_op_db. (table_name)_final as select"
         fields = []
         for column in table_data['column_list']:
             rule_name = column['rule'].strip('<>') if column['rule'] else None
-            if driver_table_coLumn is not None and column["is_pii"] == "YES" and column['is_primarykey'] == 'NO':
+            if driver_table_column is not None and column["is_pii"] == "YES" and column['is_primarykey'] == 'NO':
                 if 1 > 2:
-                    fields.append("NULL")
+                    fields.append("NUll")
                 else:
                     if rule_name =="secondary_pia_dob":
                         fields.append(f"sde.{regex_dob(column['column_name'])} AS {column['column_name']}")
                     elif rule_name in["primary_ban_acct_nbr", "primary_pan_acct_nbr15", "primary_pan_acct_nbr13", "primary_pan_acct_nbr11"]:
                         fields.append(f"{assign_test_cardnumber(rule_name)} AS {column['column_name']}")
                     elif rule_name == "secondary_pii_indv_name:first_name" or rule_name == "secondary_pii_indv_name: full_name_other" or rule_name == "secondary_pii_indv_name:last_name" or rule_name == "secondary_pii_indv_name:full_name_other":
-                        fields.append(f"{regex_name(column['column_name'])} AS {coLumn['column_name']}")
+                        fields.append(f"{regex_name(column['column_name'])} AS {column['column_name']}")
                     elif rule_name == "secondary_pii_address:line1" or rule_name == "secondary_pii_address:line2" or rule_name == "secondary_pii_address:line3" or rule_name == "secondary_pii_address:line4":
                         fields.append(f"sde.{regex_addr(column['column-name'])} AS {column['column name']}")
                     elif rule_name == "secondary_pii_address:full_address_other":
@@ -155,7 +245,7 @@ def generate_select_query(spark, table_data, output_dir,unique_id,input_db):
                     elif rule_name == "secondary_pii_address:line5" or rule_name == "secondary_pii_address:city" or rule_name == "secondary-pii_address:state" or rule_name == "secondary-pii_address:zip_code" or rule_name == "secondary_pii_address:country":
                         fields.append(f"sde.{regex_addr(column['column_name'])} AS {column['column_name']}")
                     elif rule_name == "secondary_pii_email":
-                        fields.append(f"sde.{regex_email(column['column_name'])} AS {coLumn[' column_name']}")
+                        fields.append(f"sde.{regex_email(column['column_name'])} AS {column[' column_name']}")
                     elif rule_name == "secondary_pii_telephone_cell_fax":
                         fields.append(f"sde.{regex_phone(column['column_name'])} AS {column['column_name']}")
                     elif rule_name == "primary_nid_ssn" or rule_name == "secondary_cse_tax_id":
@@ -225,6 +315,7 @@ def fetch_data_from_api(url, output_file):
             json.dump(data, file, indent=4)
     else:
         print(response.status_code)
+
 def generate_create_table_statement(table_name, columns, database_nm, unique_id):
     column_definations = []
     for column in columns:
@@ -232,7 +323,7 @@ def generate_create_table_statement(table_name, columns, database_nm, unique_id)
         data_type = map_data_type(column['data_type'])
         column_definations.append(f"{column_name} {data_type}")
     columns_str = ",\n ".join(column_definations)
-    create_table_stmt = f"CREATE TABLE IF NOT EXISTS {database_nm}.{table_name}_{unique_id} (\n {columns_str}\n) row format delimited fields terminated by ',' sorted as textfile;"
+    create_table_stmt = f"CREATE TABlE IF NOT EXISTS {database_nm}.{table_name}_{unique_id} (\n {columns_str}\n) row format delimited fields terminated by ',' sorted as textfile;"
     print(create_table_stmt)
     return create_table_stmt
 
@@ -272,7 +363,7 @@ def write_to_nas(exp_df, directory_path, extension, header=True):
 
 def export_table_to_parquet(spark, database_name, table_name, directory_path):
     spark.sql(f"use {database_name}")
-    exp_df = spark.sql(f"SELECT * FROM {database_name}.{table_name}")
+    exp_df = spark.sql(f"SElECT * FROM {database_name}.{table_name}")
     cnt = exp_df.count()
     header = True
     return exp_df
@@ -287,6 +378,9 @@ def execute_masking_query(spark, sql_file_path):
         sql_query = file.read()
     spark.sql(sql_query)
     return True
+def load_config(config_file):
+    if not os.path.exists(config_file):
+        raise Exception(f"Config file {config_file} does not exist")
 
 def main(base_loc, request_id, database_name, exec_loc, json_file_path):
     masking_config_file = os.path.join(exec_loc, "scrubbing/configs/data_masking_configs.yaml")
@@ -296,7 +390,7 @@ def main(base_loc, request_id, database_name, exec_loc, json_file_path):
     s3_secret_access_key = configs['s3_secret_access_key']
     input_db = configs['input_db']
     output_db = configs['output_db']
-    sde_db = configs['sde_db']
+    sde_db = configs['sde_db_database']
     md_url = configs['md_url']
     try:
         unique_id = generate_uuid_and_timestamp()
@@ -307,13 +401,12 @@ def main(base_loc, request_id, database_name, exec_loc, json_file_path):
         ext_keys_path = os.path.join(base_loc, "scrub_keys/")
         output_dir = "/abc/tt/data_masking/scrubbing/configs/"
         with open(json_file_path, 'r') as f:
-            json_data = json.load(f)
+            json_data_wl = json.load(f)
 
-        json_data_wl = json.load(f)
+        json_data = [json_data_wl]
         table_name = json_data_wl['table_name']
         app_car_id = json_data_wl['car_id']
-        service_request_id = json_data_wl['service_request_id'].rstrip(f':{table_name}.upper()')
-        service_request_id_status = json_data_wl['service_request_id_status']
+        service_request_id = json_data_wl['table_request_id'].rstrip(f':{table_name}.upper()')
         service_md_url = md_url + service_request_id
         has_pii = any(column['is_pii'].upper() == "YES" for column in json_data_wl['column_list'])
         if not has_pii:
@@ -361,10 +454,10 @@ def main(base_loc, request_id, database_name, exec_loc, json_file_path):
                 csv_file_path = exec_loc + exp_table_name
                 sde_op_db = "sde_op_db"
                 data_loc = "/abc/data/masked_data/"
-                spark.sql(f"DROP TABLE IF EXISTS {sde_op_db}.{exp_table_name}")
-                sql_file_path = output_path + table_name.lower() + ".sql"
+                spark.sql(f"DROP TABlE IF EXISTS {sde_op_db}.{exp_table_name}")
+                sql_file_path = output_dir + table_name + ".sql"
                 masking_final_status = execute_masking_query(spark, sql_file_path)
-                directory_path = create_final_data_write_dir(data_loc, exp_table_name, request_id)
+                directory_path = create_final_data_write_dir(data_loc, table_name, request_id)
                 exp_df = export_table_to_parquet(spark, "sde_op_db", exp_table_name, directory_path)
                 service_request_path = os.path.join(base_loc, request_id)
                 table_names = [folder for folder in os.listdir(service_request_path) if os.path.isdir(os.path.join(service_request_path, folder))]
@@ -378,6 +471,9 @@ def main(base_loc, request_id, database_name, exec_loc, json_file_path):
                 upload_masked_files_to_s3(s3_access_key_id, s3_secret_access_key, s3_url, directory_path, app_car_id, request_id, table_name)
     except Exception as e:
         print(e)
+def create_spark_session(app_name):
+    spark=SparkSession.builder.appName(app_name).config("spark.driver.allowMultipleContexts", "true").enableHiveSupport().getOrCreate()
+    return spark
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

@@ -95,3 +95,16 @@ def drop_columns(hiped_df, column_list, logger, enc):
         logger.error(f"Error dropping columns: {e}")
         raise
 
+def decryptNG(extract_config, df, column_list, spark, envr, logger, hiped_jar):
+        spark.sql(
+            f"CREATE TEMPORARY FUNCTION hiped_aes_encrypt AS 'com.abc.de.bulkcrypto.udf.EncryptHipedAesUDF' USING jar '{hiped_jar}' ")
+        df.createOrReplaceTempView('hive_view')
+        column_order = df.columns
+        dec_list = [add_dec_prefix(extract_config, item, envr, logger) for item in column_list]
+        list_str = ','.join(dec_list)
+        logger.info(f"decrypted columns: {list_str}")
+        hiped_df = spark.sql(f"select *, {list_str} from hive_view")
+        hiped_df = drop_columns(hiped_df, column_list, logger, "_dec")
+        df = hiped_df.select(*column_order)
+        spark.sql("DROP TEMPORARY FUNCTION IF EXISTS hiped_aes_decrypt")
+        return df

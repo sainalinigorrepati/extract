@@ -1,0 +1,615 @@
+[
+    {
+        "id": "servicerequesttable:STA20250501004:AWD_ORDER"
+        "table_extract_request_id": "servicerequest:125883611:ORACLE:20250501132151:AWD_ORDER",
+        "request_id": "STA20250501004"
+        "service_id": "servicerequest:125883611:0RACLE:20250501132151",
+        "table_id": "125883611: ORACLE: UK: AMEX_PDSTIDCGB01P: LSP: e1: AWD_ORDER" ,
+        "template_id": "125883611:0RACLE:UK: UK: LSP LSP: e1" ,
+        "car_ id": "125883611"
+        "application_name": "STAR-(Intl-Loyalty) " ,
+        "schema_name": "LSP"
+        "db_type": "ORACLE"
+        "table_name": "AWD_ORDER"
+        "extract_indicator": null,
+        "relational_extract": "Yest
+        "status": "APPROVAL_PENDING"
+        "submission_id": null,
+        "table_relationship": [
+            {
+                "extract _template_id": null,
+                "parent_table": "MBR_EXT_ACCT",
+                "child_table": "AWD_ORDER",
+                "parent_column": "ACCOUNT_KEY",
+                "child_column" :
+                "FEE_ACCOUNT_KEY",
+                "index": 0
+            }
+        ],
+        "driver_table": "MBR_EXT_ACCT"
+        "driver_column": "ACCOUNT_NUMBER",
+        "operator": "AND",
+        "limit": null,
+        "order": null,
+        "extract_type": "R",
+        [1:28 PM, 5/1/2025] Nalini: "retention_duration": null,
+        "partition_column": null,
+        "partition_column_datatype": null,
+        "partition_column_data_format": null,
+        "partition_column_range": null,
+        "column_list": [
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_LINE",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "MEMBER_ID",
+            "column_length": 22,
+            "data_type": "VARCHAR2"
+            "precision": "None",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "YES",
+            "is_cluster _column": null,
+            "is_pii": "YES",
+            "rule": "<primary_ban_acct_nbr>",
+            "scrubbing_rule": "Synthetic Pre Generated",
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": "P1",
+            "sde_placement_category": "BAN",
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "AWD_ITEM_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "YES",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "STATUS",
+            "column_length": 1,
+            "data_type": "VARCHAR2"
+            "precision": "None",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "YES",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "STATUS_DTTM",
+            "column_length": 7,
+            "data_type": "DATE"
+            "precision": "None",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "PLACED_DTTM",
+            "column_length": 7,
+            "data_type": "DATE"
+            "precision": "None",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "TOTAL_ITEM_QTY",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "LINE_ITEM_QTY",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod": null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ITEMS_POINT_VALUE",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ITEM_DOLLAR_VALUE",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": null,
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "YES",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod": null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ITEM_DOLLAR_COST",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": null,
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "NO",
+            "is_identity": null,
+            "is_nullable": "YES",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod": null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "SHIP_MEMBER_IND",
+            "column_length": 1,
+            "data_type": "VARCHAR2"
+            "precision": "None",
+            "is_primaryKey": "NO"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C",
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },
+        {
+            "column_name": "ORDER_ID",
+            "column_length": 22,
+            "data_type": "NUMBER"
+            "precision": "10.0000000000",
+            "is_primaryKey": "YES"
+            "is_foreignKey": "NO",
+            "is_cluster _column": null,
+            "is_pii": "NO",
+            "rule": null,
+            "scrubbing_rule": null,
+            "sde_identified_by": "SYSTEM",
+            '"sde_identified_date": null,
+            "is_encrypted": null,
+            "constraint_type": "C"
+            "is_check_constraint": null,
+            "is_partitioned": "NO",
+            "is_ indêxed": "YES",
+            "is_identity": null,
+            "is_nullable": "NO",
+            "sde_placement": null,
+            "sde_placement_category": null,
+            "hipedAlgorithm": null,
+            "encryption_sde_key": null,
+            "encryption_sde_useIVMethod":
+            null,
+            "hipedEmbedPANHeaderVersion": null,
+            "hipedEmbedCategory": null
+        },

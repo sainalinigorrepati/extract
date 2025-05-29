@@ -30,7 +30,7 @@ def check_for_rule_duplicacy(rule_dict, logger):
     if fail_flag:
         raise ValueError('failing the job as same rule cannot be present for multiple columns')
 
-def get_highest_priority(column_list, logger):
+def get_highest_priority_num(column_list, logger):
     highest_priority_rule_num = 0
     non_hiped_algo_rule_dict = defaultdict(list)
     for column in column_list:
@@ -58,7 +58,7 @@ def get_columns_as_str(table_name, column_list, driver_column, logger):
         column_str = ""
         pii_list = []
         enc_col = []
-        high_priority_rule_num = get_highest_priority(column_list, logger)
+        high_priority_rule_num = get_highest_priority_num(column_list, logger)
         for column in column_list:
             if column['is_encrypted'] == "YES":
                 if column['rule'] == "<primary_pan_acct_nbr15>" or column['is_primarykey'] == "YES":
@@ -69,7 +69,7 @@ def get_columns_as_str(table_name, column_list, driver_column, logger):
                     if column['hipedAlgorithm'] != 'KeyBasedCryptoHash':
                         pii_list.append(column['column_name']) #create a list of pii columns
 
-                if column["rule"] !=priority_rule_dict.get(high_priority_rule_num,'') and column['is_primarykey'] == "YES" and column['column_name'] != driver_column:
+                if column["rule"] !=priority_rule_dict.get(high_priority_rule_num,'') and column['is_primarykey'] != "YES" and column['column_name'] != driver_column:
                     if ("VARCHAR" in column['data_type']):
                         column_str += f" CAST(NULL as {column['data_type']}({column['column_length']})) as {column['column_name']}"
                     elif("CLOB" in column['data_type']):
