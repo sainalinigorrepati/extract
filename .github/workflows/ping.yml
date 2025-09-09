@@ -17,8 +17,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Test SSH
+      - name: Run commands on EC2
         run: |
-          ssh -o StrictHostKeyChecking=yes \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "echo OK \$(hostname) as \$(whoami)"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_HOST }} "ls -lah /home/ubuntu"
+     
